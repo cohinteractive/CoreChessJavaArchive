@@ -5,10 +5,10 @@ import com.ohinteractive.seedv3.util.Crit;
 import com.ohinteractive.seedv3.util.Logger;
 import com.ohinteractive.seedv3.util.Magic;
 import com.ohinteractive.seedv3.util.Piece;
-import com.ohinteractive.seedv3.util.TTable;
+import com.ohinteractive.seedv3.util.TTable_SeedV3;
 import com.ohinteractive.seedv3.util.Value;
 
-public class Eval {
+public class Eval_SeedV3 {
     
     public static int eval(long board0, long board1, long board2, long board3, long status, long key) {
         // ********************
@@ -17,7 +17,7 @@ public class Eval {
         // ***              ***
         // ********************
         final long t = table.probe(key).data();
-        if(t != TTable.TYPE_INVALID) return (int) t;
+        if(t != TTable_SeedV3.TYPE_INVALID) return (int) t;
         // ************************
         // ***                  ***
         // *** SET UP CONSTANTS ***
@@ -151,7 +151,7 @@ public class Eval {
         // *** SAVE NEW TTABLE ENTRY ***
         // ***                       ***
         // *****************************
-        table.save(key, 0, TTable.TYPE_EVAL, eval, 0L);
+        table.save(key, 0, TTable_SeedV3.TYPE_EVAL, eval, 0L);
         return eval;
     }
 
@@ -162,7 +162,7 @@ public class Eval {
         // ***              ***
         // ********************
         final long t = table.probe(key).data();
-        if(t != TTable.TYPE_INVALID) {
+        if(t != TTable_SeedV3.TYPE_INVALID) {
             logger.log("eval: TTable hit on key " + Long.toHexString(key) + " with eval " + ((int) t));
             return (int) t;
         }
@@ -307,7 +307,7 @@ public class Eval {
         // *** SAVE NEW TTABLE ENTRY ***
         // ***                       ***
         // *****************************
-        table.save(key, 0, TTable.TYPE_EVAL, eval, 0L);
+        table.save(key, 0, TTable_SeedV3.TYPE_EVAL, eval, 0L);
         return eval;
     }
 
@@ -380,7 +380,7 @@ public class Eval {
         return eval;
     }
 
-    private static TTable table = new TTable();
+    private static TTable_SeedV3 table = new TTable_SeedV3();
 
     private static final int CENTRE_FILE = 3;
     private static final int CENTRE_RANK = 3;
@@ -639,7 +639,7 @@ public class Eval {
         }
     }
 
-    private Eval() {}
+    private Eval_SeedV3() {}
 
     private static int kingEval(int player, int kingSquare, int phase, int kingRank, int kingFile, long rookBitboard, long pawnBitboard, long otherPawnBitboard, int pieceMaterial, int otherPieceMaterial, int otherKingFile, int otherKingRank) {
         // init eval and king square bonus

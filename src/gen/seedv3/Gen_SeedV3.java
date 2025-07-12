@@ -5,7 +5,7 @@ import com.ohinteractive.seedv3.util.Magic;
 import com.ohinteractive.seedv3.util.Piece;
 import com.ohinteractive.seedv3.util.Value;
 
-public class Gen {
+public class Gen_SeedV3 {
     
     public static final int MAX_MOVELIST_SIZE = 100;
     public static final int MOVELIST_SIZE = MAX_MOVELIST_SIZE - 1;
@@ -36,7 +36,7 @@ public class Gen {
         return moves;
     }
 
-    private Gen() {}
+    private Gen_SeedV3() {}
 
     private static int purgeIllegalMoves(long[] board, long[] moves, int player, int moveListLength) {
         int legalMoveCount = 0;

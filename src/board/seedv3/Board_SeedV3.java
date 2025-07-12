@@ -8,7 +8,7 @@ import com.ohinteractive.seedv3.util.Piece;
 import com.ohinteractive.seedv3.util.Value;
 import com.ohinteractive.seedv3.util.Zobrist;
 
-public class Board {
+public class Board_SeedV3 {
 
     public static final int STATUS = 4;
     public static final int MAX_BITBOARDS = 6;
@@ -682,7 +682,7 @@ public class Board {
 		return string.toString();
     }
 
-    private Board() {}
+    private Board_SeedV3() {}
 
     public static final int[] LSB = {
         0,  1, 48,  2, 57, 49, 28,  3,
