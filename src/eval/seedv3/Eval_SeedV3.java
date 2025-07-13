@@ -23,7 +23,7 @@ public class Eval_SeedV3 {
         // *** SET UP CONSTANTS ***
         // ***                  ***
         // ************************
-        final int thisPlayer = (int) status & Board.PLAYER_BIT;
+        final int thisPlayer = (int) status & Board_MinChessV2Lib.PLAYER_BIT;
         final long whitePieceMask = ~board3;
         final long blackPieceMask = board3;
         final long whiteKing = board0 & ~board1 & ~board2 & whitePieceMask;
@@ -145,7 +145,7 @@ public class Eval_SeedV3 {
         // *** EVALUATE DRAWS ***
         // ***                ***
         // **********************
-        eval = drawEval(eval, (int) status >>> Board.HALF_MOVE_CLOCK_SHIFT & Board.HALF_MOVE_CLOCK_BITS, Long.bitCount(allOccupancy), whiteBishopsKnights, blackBishopsKnights, whiteBishop, blackBishop, Long.bitCount(whiteBishop), Long.bitCount(blackBishop));
+        eval = drawEval(eval, (int) status >>> Board_MinChessV2Lib.HALF_MOVE_CLOCK_SHIFT & Board_MinChessV2Lib.HALF_MOVE_CLOCK_BITS, Long.bitCount(allOccupancy), whiteBishopsKnights, blackBishopsKnights, whiteBishop, blackBishop, Long.bitCount(whiteBishop), Long.bitCount(blackBishop));
         // *****************************
         // ***                       ***
         // *** SAVE NEW TTABLE ENTRY ***
@@ -171,7 +171,7 @@ public class Eval_SeedV3 {
         // *** SET UP CONSTANTS ***
         // ***                  ***
         // ************************
-        final int thisPlayer = (int) status & Board.PLAYER_BIT;
+        final int thisPlayer = (int) status & Board_MinChessV2Lib.PLAYER_BIT;
         final long whitePieceMask = ~board3;
         final long blackPieceMask = board3;
         final long whiteKing = board0 & ~board1 & ~board2 & whitePieceMask;
@@ -301,7 +301,7 @@ public class Eval_SeedV3 {
         // *** EVALUATE DRAWS ***
         // ***                ***
         // **********************
-        eval = drawEvalWithLogging(eval, (int) status >>> Board.HALF_MOVE_CLOCK_SHIFT & Board.HALF_MOVE_CLOCK_BITS, Long.bitCount(allOccupancy), whiteBishopsKnights, blackBishopsKnights, whiteBishop, blackBishop, Long.bitCount(whiteBishop), Long.bitCount(blackBishop), logger);
+        eval = drawEvalWithLogging(eval, (int) status >>> Board_MinChessV2Lib.HALF_MOVE_CLOCK_SHIFT & Board_MinChessV2Lib.HALF_MOVE_CLOCK_BITS, Long.bitCount(allOccupancy), whiteBishopsKnights, blackBishopsKnights, whiteBishop, blackBishop, Long.bitCount(whiteBishop), Long.bitCount(blackBishop), logger);
         // *****************************
         // ***                       ***
         // *** SAVE NEW TTABLE ENTRY ***
@@ -317,10 +317,10 @@ public class Eval_SeedV3 {
         long board2 = board[2];
         long board3 = board[3];
         int seeValue = 0;
-        int startPlayer = (int) board[Board.STATUS] & Board.PLAYER_BIT;
+        int startPlayer = (int) board[Board_MinChessV2Lib.STATUS] & Board_MinChessV2Lib.PLAYER_BIT;
         int currentPlayer = startPlayer;
-        int startPiece = Board.getSquare(board0, board1, board2, board3, startSquare);
-        int targetPiece = Board.getSquare(board0, board1, board2, board3, targetSquare);
+        int startPiece = Board_MinChessV2Lib.getSquare(board0, board1, board2, board3, startSquare);
+        int targetPiece = Board_MinChessV2Lib.getSquare(board0, board1, board2, board3, targetSquare);
         long targetSquareBit = 1L << targetSquare;
         int[] VALUE = RAW_PIECE_VALUE;
         while(true) {
@@ -336,7 +336,7 @@ public class Eval_SeedV3 {
             if(nextAttacker == Value.INVALID) return seeValue;
             targetPiece = startPiece;
             startPiece = (nextAttacker >>> 6 & Piece.TYPE) | (currentPlayer << 3);
-            startSquare = nextAttacker & Board.SQUARE_BITS;
+            startSquare = nextAttacker & Board_MinChessV2Lib.SQUARE_BITS;
         }
     }
 

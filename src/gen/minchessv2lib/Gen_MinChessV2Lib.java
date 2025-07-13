@@ -1,19 +1,19 @@
-package com.ohinteractive.seedv3.impl;
+package com.ohinteractive.minchessv2lib.impl;
 
-import com.ohinteractive.seedv3.util.Bitboard;
-import com.ohinteractive.seedv3.util.Magic;
-import com.ohinteractive.seedv3.util.Piece;
-import com.ohinteractive.seedv3.util.Value;
+import com.ohinteractive.minchessv2lib.util.Bitboard;
+import com.ohinteractive.minchessv2lib.util.Magic;
+import com.ohinteractive.minchessv2lib.util.Piece;
+import com.ohinteractive.minchessv2lib.util.Value;
 
-public class Gen_SeedV3 {
+public class Gen_MinChessV2Lib {
     
     public static final int MAX_MOVELIST_SIZE = 100;
     public static final int MOVELIST_SIZE = MAX_MOVELIST_SIZE - 1;
 
     public static long[] gen(long[] board, boolean legal, boolean tactical, long[] movesBuffer) {
-        final int status = (int) board[Board_MinChessV2Lib.STATUS];
-        final int player = status & Board_MinChessV2Lib.PLAYER_BIT;
-        final int playerBit = player << Board_MinChessV2Lib.PLAYER_SHIFT;
+        final int status = (int) board[Board.STATUS];
+        final int player = status & Board.PLAYER_BIT;
+        final int playerBit = player << Board.PLAYER_SHIFT;
         final long board0 = board[0];
         final long board1 = board[1];
         final long board2 = board[2];
@@ -36,14 +36,14 @@ public class Gen_SeedV3 {
         return moves;
     }
 
-    private Gen_SeedV3() {}
+    private Gen_MinChessV2Lib() {}
 
     private static int purgeIllegalMoves(long[] board, long[] moves, int player, int moveListLength) {
         int legalMoveCount = 0;
         for(int i = 0; i < moveListLength; i ++) {
             final long move = moves[i];
-            final long[] boardAfterMove = Board_MinChessV2Lib.makeMove(board, move);
-            if(!Board_MinChessV2Lib.isPlayerInCheck(boardAfterMove, player)) moves[legalMoveCount ++] = move;
+            final long[] boardAfterMove = Board.makeMove(board, move);
+            if(!Board.isPlayerInCheck(boardAfterMove, player)) moves[legalMoveCount ++] = move;
         }
         return legalMoveCount;
     }
@@ -63,19 +63,19 @@ public class Gen_SeedV3 {
         final int square = lsb[(int) (((pieceBitboard & -pieceBitboard) * DB) >>> 58)];
         final long kingAttacks = KING_ATTACKS[square];
         long moveBitboard = kingAttacks & otherOccupancy;
-        final int moveInfo = square | (piece << Board_MinChessV2Lib.START_PIECE_SHIFT);
+        final int moveInfo = square | (piece << Board.START_PIECE_SHIFT);
         while(moveBitboard != 0L) {
             final long b = moveBitboard & -moveBitboard;
             moveBitboard ^= b;
             final int targetSquare = lsb[(int) ((b * DB) >>> 58)];
-            moves[moveListLength ++] = moveInfo | (targetSquare << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board_MinChessV2Lib.TARGET_PIECE_SHIFT);
+            moves[moveListLength ++] = moveInfo | (targetSquare << Board.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board.TARGET_PIECE_SHIFT);
         }
         if(tactical) return moveListLength;
         moveBitboard = kingAttacks & ~allOccupancy;
         while(moveBitboard!= 0L) {
             final long b = moveBitboard & -moveBitboard;
             moveBitboard ^= b;
-            moves[moveListLength ++] = moveInfo | (lsb[(int) ((b * DB) >>> 58)] << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT);
+            moves[moveListLength ++] = moveInfo | (lsb[(int) ((b * DB) >>> 58)] << Board.TARGET_SQUARE_SHIFT);
         }
         final int blackCastlingBitsMask = -player;
         final int whiteCastlingBitsMask = ~blackCastlingBitsMask; 
@@ -83,14 +83,14 @@ public class Gen_SeedV3 {
         final boolean queenSide = (status & ((WHITE_QUEENSIDE_CASTLING_BIT_UNSHIFTED & whiteCastlingBitsMask) | (BLACK_QUEENSIDE_CASTLING_BIT_UNSHIFTED & blackCastlingBitsMask))) != Value.NONE;
         if(kingSide || queenSide) {
             final int other = 1 ^ player;
-            if(!Board_MinChessV2Lib.isSquareAttackedByPlayer(board0, board1, board2, board3, square, other)) {
+            if(!Board.isSquareAttackedByPlayer(board0, board1, board2, board3, square, other)) {
                 if(kingSide) {
-                    if((allOccupancy & ((WHITE_KINGSIDE_CASTLING_INTERMEDIATE_SQUARES  & whiteCastlingBitsMask) | (BLACK_KINGSIDE_CASTLING_INTERMEDIATE_SQUARES  & blackCastlingBitsMask))) == 0L && !Board_MinChessV2Lib.isSquareAttackedByPlayer(board0, board1, board2, board3, square + 1, other))
-                        moves[moveListLength ++] = moveInfo | ((square + 2) << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT);
+                    if((allOccupancy & ((WHITE_KINGSIDE_CASTLING_INTERMEDIATE_SQUARES  & whiteCastlingBitsMask) | (BLACK_KINGSIDE_CASTLING_INTERMEDIATE_SQUARES  & blackCastlingBitsMask))) == 0L && !Board.isSquareAttackedByPlayer(board0, board1, board2, board3, square + 1, other))
+                        moves[moveListLength ++] = moveInfo | ((square + 2) << Board.TARGET_SQUARE_SHIFT);
                 }
                 if(queenSide) {
-                    if((allOccupancy & ((WHITE_QUEENSIDE_CASTLING_INTERMEDIATE_SQUARES & whiteCastlingBitsMask) | (BLACK_QUEENSIDE_CASTLING_INTERMEDIATE_SQUARES & blackCastlingBitsMask))) == 0L && !Board_MinChessV2Lib.isSquareAttackedByPlayer(board0, board1, board2, board3, square - 1, other))
-                        moves[moveListLength ++] = moveInfo | ((square - 2) << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT);
+                    if((allOccupancy & ((WHITE_QUEENSIDE_CASTLING_INTERMEDIATE_SQUARES & whiteCastlingBitsMask) | (BLACK_QUEENSIDE_CASTLING_INTERMEDIATE_SQUARES & blackCastlingBitsMask))) == 0L && !Board.isSquareAttackedByPlayer(board0, board1, board2, board3, square - 1, other))
+                        moves[moveListLength ++] = moveInfo | ((square - 2) << Board.TARGET_SQUARE_SHIFT);
                 }
             }
         }
@@ -107,19 +107,19 @@ public class Gen_SeedV3 {
             final int square = lsb[(int) ((b * DB) >>> 58)];
             final long knightAttacks = leapAttacks[square];
             long moveBitboard = knightAttacks & otherOccupancy;
-            final int moveInfo = square | (piece << Board_MinChessV2Lib.START_PIECE_SHIFT);
+            final int moveInfo = square | (piece << Board.START_PIECE_SHIFT);
             while(moveBitboard != 0L) {
                 final long b2 = moveBitboard & -moveBitboard;
                 moveBitboard ^= b2;
                 final int targetSquare = lsb[(int) ((b2 * DB) >>> 58)];
-                moves[moveListLength ++] = moveInfo | (targetSquare << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board_MinChessV2Lib.TARGET_PIECE_SHIFT);
+                moves[moveListLength ++] = moveInfo | (targetSquare << Board.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board.TARGET_PIECE_SHIFT);
             }
             if(tactical) continue;
             moveBitboard = knightAttacks & ~allOccupancy;
             while(moveBitboard != 0L) {
                 final long b2 = moveBitboard & -moveBitboard;
                 moveBitboard ^= b2;
-                moves[moveListLength ++] = moveInfo | (lsb[(int) ((b2 * DB) >>> 58)] << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT);
+                moves[moveListLength ++] = moveInfo | (lsb[(int) ((b2 * DB) >>> 58)] << Board.TARGET_SQUARE_SHIFT);
             }
         }
         return moveListLength;
@@ -128,8 +128,8 @@ public class Gen_SeedV3 {
     private static int getPawnMoves(long board0, long board1, long board2, long board3, long colorMask, int status, long[] moves, int piece, int moveListLength, int player, long allOccupancy, long otherOccupancy, boolean tactical) {
         long pieceBitboard = ~board0 & board1 & board2 & colorMask;
         final int[] lsb = LSB;
-        final int playerBit = player << Board_MinChessV2Lib.PLAYER_SHIFT;
-        final int eSquare = status >>> Board_MinChessV2Lib.ESQUARE_SHIFT & Board_MinChessV2Lib.SQUARE_BITS;
+        final int playerBit = player << Board.PLAYER_SHIFT;
+        final int eSquare = status >>> Board.ESQUARE_SHIFT & Board.SQUARE_BITS;
         otherOccupancy |= (eSquare > 0 ? (1L << eSquare) : 0L);
         final long[] pawnAttacks = PAWN_ATTACKS[player];
         final long[] pawnAdvanceSingle = PAWN_ADVANCE_SINGLE[player];
@@ -139,18 +139,18 @@ public class Gen_SeedV3 {
             pieceBitboard ^= b;
             final int square = lsb[(int) ((b * DB) >>> 58)];
             long moveBitboard = pawnAttacks[square] & otherOccupancy;
-            final int moveInfo = square | (piece << Board_MinChessV2Lib.START_PIECE_SHIFT); 
+            final int moveInfo = square | (piece << Board.START_PIECE_SHIFT); 
             while(moveBitboard != 0L) {
                 final long b2 = moveBitboard & -moveBitboard;
                 moveBitboard ^= b2;
                 final int targetSquare = lsb[(int) ((b2 * DB) >>> 58)];
                 final int targetRank = targetSquare >>> 3;
-                final int promoteInfo = moveInfo | (targetSquare << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board_MinChessV2Lib.TARGET_PIECE_SHIFT);
+                final int promoteInfo = moveInfo | (targetSquare << Board.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board.TARGET_PIECE_SHIFT);
                 if(targetRank == (7 & ~(-player))) {
-                    moves[moveListLength++] = promoteInfo | ((Piece.QUEEN | playerBit) << Board_MinChessV2Lib.PROMOTE_PIECE_SHIFT);
-                    moves[moveListLength++] = promoteInfo | ((Piece.ROOK | playerBit) << Board_MinChessV2Lib.PROMOTE_PIECE_SHIFT);
-                    moves[moveListLength++] = promoteInfo | ((Piece.BISHOP | playerBit) << Board_MinChessV2Lib.PROMOTE_PIECE_SHIFT);
-                    moves[moveListLength++] = promoteInfo | ((Piece.KNIGHT | playerBit) << Board_MinChessV2Lib.PROMOTE_PIECE_SHIFT);
+                    moves[moveListLength++] = promoteInfo | ((Piece.QUEEN | playerBit) << Board.PROMOTE_PIECE_SHIFT);
+                    moves[moveListLength++] = promoteInfo | ((Piece.ROOK | playerBit) << Board.PROMOTE_PIECE_SHIFT);
+                    moves[moveListLength++] = promoteInfo | ((Piece.BISHOP | playerBit) << Board.PROMOTE_PIECE_SHIFT);
+                    moves[moveListLength++] = promoteInfo | ((Piece.KNIGHT | playerBit) << Board.PROMOTE_PIECE_SHIFT);
                 } else {
                     moves[moveListLength ++] = promoteInfo;
                 }
@@ -165,12 +165,12 @@ public class Gen_SeedV3 {
                 moveBitboard ^= b2;
                 final int targetSquare = lsb[(int) ((b2 * DB) >>> 58)];
                 final int targetRank = targetSquare >>> 3;
-                final int promoteInfo = moveInfo | (targetSquare << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT);
+                final int promoteInfo = moveInfo | (targetSquare << Board.TARGET_SQUARE_SHIFT);
                 if(targetRank == (7 & ~(-player))) {
-                    moves[moveListLength++] = promoteInfo | ((Piece.QUEEN | playerBit) << Board_MinChessV2Lib.PROMOTE_PIECE_SHIFT);
-                    moves[moveListLength++] = promoteInfo | ((Piece.BISHOP | playerBit) << Board_MinChessV2Lib.PROMOTE_PIECE_SHIFT);
-                    moves[moveListLength++] = promoteInfo | ((Piece.KNIGHT | playerBit) << Board_MinChessV2Lib.PROMOTE_PIECE_SHIFT);
-                    moves[moveListLength++] = promoteInfo | ((Piece.ROOK | playerBit) << Board_MinChessV2Lib.PROMOTE_PIECE_SHIFT);
+                    moves[moveListLength++] = promoteInfo | ((Piece.QUEEN | playerBit) << Board.PROMOTE_PIECE_SHIFT);
+                    moves[moveListLength++] = promoteInfo | ((Piece.BISHOP | playerBit) << Board.PROMOTE_PIECE_SHIFT);
+                    moves[moveListLength++] = promoteInfo | ((Piece.KNIGHT | playerBit) << Board.PROMOTE_PIECE_SHIFT);
+                    moves[moveListLength++] = promoteInfo | ((Piece.ROOK | playerBit) << Board.PROMOTE_PIECE_SHIFT);
                 } else {
                     moves[moveListLength ++] = promoteInfo;
                 }
@@ -198,19 +198,19 @@ public class Gen_SeedV3 {
                 rookMoves[square][(int)   ((allOccupancy & rookMovement[square])   * rookMagics[square]   >>> rookShifts[square])] |
                 bishopMoves[square][(int) ((allOccupancy & bishopMovement[square]) * bishopMagics[square] >>> bishopShifts[square])];
             long moveBitboard = magic & otherOccupancy;
-            final int moveInfo = square | (piece << Board_MinChessV2Lib.START_PIECE_SHIFT);
+            final int moveInfo = square | (piece << Board.START_PIECE_SHIFT);
             while(moveBitboard != 0L) {
                 final long b2 = moveBitboard & -moveBitboard;
                 moveBitboard ^= b2;
                 final int targetSquare = lsb[(int) ((b2 * DB) >>> 58)];
-                moves[moveListLength ++] = moveInfo | (targetSquare << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board_MinChessV2Lib.TARGET_PIECE_SHIFT);
+                moves[moveListLength ++] = moveInfo | (targetSquare << Board.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board.TARGET_PIECE_SHIFT);
             }
             if(tactical) continue;
             moveBitboard = magic & ~allOccupancy;
             while(moveBitboard != 0L) {
                 final long b2 = moveBitboard & -moveBitboard;
                 moveBitboard ^= b2;
-                moves[moveListLength ++] = moveInfo | (lsb[(int) ((b2 * DB) >>> 58)] << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT);
+                moves[moveListLength ++] = moveInfo | (lsb[(int) ((b2 * DB) >>> 58)] << Board.TARGET_SQUARE_SHIFT);
             }
         }
         return moveListLength;
@@ -229,19 +229,19 @@ public class Gen_SeedV3 {
             final int square = lsb[(int) ((b * DB) >>> 58)];
             final long magic = rookMoves[square][(int) ((allOccupancy & rookMovement[square]) * rookMagics[square] >>> rookShifts[square])];
             long moveBitboard = magic & otherOccupancy;
-            final int moveInfo = square | (piece << Board_MinChessV2Lib.START_PIECE_SHIFT);
+            final int moveInfo = square | (piece << Board.START_PIECE_SHIFT);
             while(moveBitboard != 0L) {
                 final long b2 = moveBitboard & -moveBitboard;
                 moveBitboard ^= b2;
                 final int targetSquare = lsb[(int) ((b2 * DB) >>> 58)];
-                moves[moveListLength ++] = moveInfo | (targetSquare << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board_MinChessV2Lib.TARGET_PIECE_SHIFT);
+                moves[moveListLength ++] = moveInfo | (targetSquare << Board.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board.TARGET_PIECE_SHIFT);
             }
             if(tactical) continue;
             moveBitboard = magic & ~allOccupancy;
             while(moveBitboard != 0L) {
                 final long b2 = moveBitboard & -moveBitboard;
                 moveBitboard ^= b2;
-                moves[moveListLength ++] = moveInfo | (lsb[(int) ((b2 * DB) >>> 58)] << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT);
+                moves[moveListLength ++] = moveInfo | (lsb[(int) ((b2 * DB) >>> 58)] << Board.TARGET_SQUARE_SHIFT);
             }
         }
         return moveListLength;
@@ -260,19 +260,19 @@ public class Gen_SeedV3 {
             final int square = lsb[(int) ((b * DB) >>> 58)];
             final long magic = bishopMoves[square][(int) ((allOccupancy & bishopMovement[square]) * bishopMagics[square] >>> bishopShifts[square])];
             long moveBitboard = magic & otherOccupancy;
-            final int moveInfo = square | (piece << Board_MinChessV2Lib.START_PIECE_SHIFT);
+            final int moveInfo = square | (piece << Board.START_PIECE_SHIFT);
             while(moveBitboard != 0L) {
                 final long b2 = moveBitboard & -moveBitboard;
                 moveBitboard ^= b2;
                 final int targetSquare = lsb[(int) ((b2 * DB) >>> 58)];
-                moves[moveListLength ++] = moveInfo | (targetSquare << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board_MinChessV2Lib.TARGET_PIECE_SHIFT);
+                moves[moveListLength ++] = moveInfo | (targetSquare << Board.TARGET_SQUARE_SHIFT) | ((int) (((board3 >>> targetSquare & 1) << 3) | ((board2 >>> targetSquare & 1) << 2) | ((board1 >>> targetSquare & 1) << 1) | (board0 >>> targetSquare & 1)) << Board.TARGET_PIECE_SHIFT);
             }
             if(tactical) continue;
             moveBitboard = magic & ~allOccupancy;
             while(moveBitboard != 0L) {
                 final long b2 = moveBitboard & -moveBitboard;
                 moveBitboard ^= b2;
-                moves[moveListLength ++] = moveInfo | (lsb[(int) ((b2 * DB) >>> 58)] << Board_MinChessV2Lib.TARGET_SQUARE_SHIFT);
+                moves[moveListLength ++] = moveInfo | (lsb[(int) ((b2 * DB) >>> 58)] << Board.TARGET_SQUARE_SHIFT);
             }
         }
         return moveListLength;

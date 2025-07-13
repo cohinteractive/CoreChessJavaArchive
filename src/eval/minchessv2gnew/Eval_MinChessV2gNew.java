@@ -10,12 +10,12 @@ import com.ohinteractive.minchessv2gnew.util.Value;
 public class Eval_MinChessV2gNew {
 
     public Eval_MinChessV2gNew() {
-        this(Board.startingPosition());
+        this(Board_MinChessV2Lib.startingPosition());
     }
 
     public Eval_MinChessV2gNew(long[] board) {
         this.board = board;
-        this.playerToMove = (int) board[Board.STATUS] & Board.PLAYER_BIT;
+        this.playerToMove = (int) board[Board_MinChessV2Lib.STATUS] & Board_MinChessV2Lib.PLAYER_BIT;
         this.playerOccupancy[0] = board[0];
         this.playerOccupancy[1] = board[8];
         this.allOccupancy = this.playerOccupancy[0] | this.playerOccupancy[1];
@@ -32,7 +32,7 @@ public class Eval_MinChessV2gNew {
     }
 
     public int eval() {
-        long score = table.probe(this.board[Board.KEY]).data();
+        long score = table.probe(this.board[Board_MinChessV2Lib.KEY]).data();
         if(score != Long.MIN_VALUE) return (int) score;
         final long whiteKing = board[Piece.WHITE_KING];
         final long whiteQueen = board[Piece.WHITE_QUEEN];
@@ -63,7 +63,7 @@ public class Eval_MinChessV2gNew {
         blackEval += SAFETY_VALUE[playerSafety[0]];
         int eval = (this.playerToMove == Value.WHITE ? whiteEval - blackEval : blackEval - whiteEval);
         eval = isDraw(eval) ? 0 : eval;
-        table.save(this.board[Board.KEY], eval, 0, TTable_SeedV3.TYPE_EVAL, 0L);
+        table.save(this.board[Board_MinChessV2Lib.KEY], eval, 0, TTable_SeedV3.TYPE_EVAL, 0L);
         return eval;
     }
 
@@ -71,11 +71,11 @@ public class Eval_MinChessV2gNew {
         long[] seeBoard = new long[board.length];
         System.arraycopy(board, 0, seeBoard, 0, board.length);
         int seeValue = 0;
-        int startPlayer = (int) seeBoard[Board.STATUS] & Board.PLAYER_BIT;
+        int startPlayer = (int) seeBoard[Board_MinChessV2Lib.STATUS] & Board_MinChessV2Lib.PLAYER_BIT;
         int currentPlayer = startPlayer;
-        int targetPiece = Board.getSquare(seeBoard, targetSquare);
+        int targetPiece = Board_MinChessV2Lib.getSquare(seeBoard, targetSquare);
         long pieceMoveBits;
-        int startPiece = Board.getSquare(seeBoard, startSquare);
+        int startPiece = Board_MinChessV2Lib.getSquare(seeBoard, startSquare);
         long targetSquareBit = 1L << targetSquare;
         while(true) {
             seeValue += PIECE_VALUE[targetPiece & Piece.TYPE][1][0] * (currentPlayer == startPlayer ? 1 : -1);
@@ -91,7 +91,7 @@ public class Eval_MinChessV2gNew {
             startSquare = getNextAttackingPiece(seeBoard, targetSquare, currentPlayer);
             if(startSquare == Value.INVALID) break;
             targetPiece = startPiece;
-            startPiece = Board.getSquare(seeBoard, startSquare);
+            startPiece = Board_MinChessV2Lib.getSquare(seeBoard, startSquare);
         }
         return seeValue;
     }
@@ -366,8 +366,8 @@ public class Eval_MinChessV2gNew {
         }
         */
         // new code 26/09/24 from chatGPT v.o1
-        int playerPieceMaterial = Board.materialValuePieces(board, player);
-        int otherPieceMaterial = Board.materialValuePieces(board, other);
+        int playerPieceMaterial = Board_MinChessV2Lib.materialValuePieces(board, player);
+        int otherPieceMaterial = Board_MinChessV2Lib.materialValuePieces(board, other);
         if (playerPieceMaterial > otherPieceMaterial && playerPieceMaterial <= Piece.VALUE[Piece.QUEEN]) {
             int opponentKingDistanceFromCenter = Math.abs(playerKingFile[other] - CENTRE_FILE) + Math.abs(playerKingRank[other] - CENTRE_RANK);
             int kingDistance = Math.abs(playerKingFile[player] - playerKingFile[other]) + Math.abs(playerKingRank[player] - playerKingRank[other]);
@@ -561,13 +561,13 @@ public class Eval_MinChessV2gNew {
                 // phalanx
                 eval += (originalBitboard & adjacentFilesBitboard & B.BB[B.RANK][pawnRank]) > 0L ? PASSED_PAWN_PHALANX[phase] : 0;
                 // other king distance when low material
-                if(Board.materialValuePieces(board, 1 ^ other) < PIECE_VALUE[Piece.QUEEN][1][24]) {
+                if(Board_MinChessV2Lib.materialValuePieces(board, 1 ^ other) < PIECE_VALUE[Piece.QUEEN][1][24]) {
                     int kingDist = 8 - Math.max(Math.abs(playerKingRank[player] - pawnRank), Math.abs(playerKingFile[player] - pawnFile));
                     int otherKingDist = Math.max(Math.abs(playerKingRank[other] - pawnRank), Math.abs(playerKingFile[other] - pawnFile));
 				    eval += (kingDist * kingDist + otherKingDist * otherKingDist) * (player == 0 ? pawnRank : 7 - pawnRank);
                 }
                 // other king stops pawn when other has no material
-                if(Board.countMaterialPieces(board, other) == 0 && (originalBitboard & B.BB[B.FORWARD_RANKS_PLAYER0 + player][pawnRank] & B.BB[B.FILE][pawnFile]) != 0L) {
+                if(Board_MinChessV2Lib.countMaterialPieces(board, other) == 0 && (originalBitboard & B.BB[B.FORWARD_RANKS_PLAYER0 + player][pawnRank] & B.BB[B.FILE][pawnFile]) != 0L) {
                     int pawnPromoteDist = Math.abs((player == 0 ? 7 : 0) - pawnRank) + (pawnRank == (player == 0 ? 1 : 6) ? 1 : 0);
                     int otherKingDistFromPromote = Math.max(Math.abs((player == 0 ? 7 : 0) - playerKingRank[other]), Math.abs(pawnFile - playerKingFile[other]));
                     int pawnTurnToMove = player == this.playerToMove  ? 1 : 0;
@@ -607,11 +607,11 @@ public class Eval_MinChessV2gNew {
 			return false;
 		}
 		int weaker = 1 ^ stronger;
-        if(Board.materialValuePieces(this.board, stronger) < 400) {
+        if(Board_MinChessV2Lib.materialValuePieces(this.board, stronger) < 400) {
         	return true;
         }
         int weakerBit = weaker << 3;
-        if(Long.bitCount(this.board[Piece.PAWN | weakerBit]) == 0 && Board.materialValue(this.board, stronger) == Board.KNIGHT_VALUES[2]) {
+        if(Long.bitCount(this.board[Piece.PAWN | weakerBit]) == 0 && Board_MinChessV2Lib.materialValue(this.board, stronger) == Board_MinChessV2Lib.KNIGHT_VALUES[2]) {
             return true;
         }
         return false;

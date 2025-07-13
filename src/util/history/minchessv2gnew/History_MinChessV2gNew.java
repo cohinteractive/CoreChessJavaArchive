@@ -58,9 +58,9 @@ public class History_MinChessV2gNew {
         return this.index == 0;
     }
 
-    private static final int MAX_ELEMENTS = Board.MAX_BITBOARDS + 1;
+    private static final int MAX_ELEMENTS = Board_MinChessV2Lib.MAX_BITBOARDS + 1;
     private static final int MOVE_ELEMENT = MAX_ELEMENTS - 1;
-    private static final int KEY_ELEMENT = Board.KEY;
+    private static final int KEY_ELEMENT = Board_MinChessV2Lib.KEY;
 
     private int index;
     private long[][] history;
